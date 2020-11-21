@@ -33,7 +33,7 @@ void main(List<String> arguments) {
       buscarCardsId(dio, 1);
       break;
     case 3:
-      insereCards(dio, Card(2, 'Card2', 'qualquer coisa'));
+      insereCards(dio, Card(id: 2, title: 'Card2', content: 'qualquer coisa'));
       break;
   }
 }
@@ -49,9 +49,9 @@ int getOption() {
 }
 
 void buscarTodosCards(Dio dio) async {
-  Response response = await dio.get('/cards');
+  Response<List> response = await dio.get('/cards');
 
-  (response.data as List).map((card) => Card.fromJson(card)).forEach((element) {
+  response.data.map((card) => Card.fromJson(card)).forEach((element) {
     print(element);
   });
 }
