@@ -1,16 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:desafiocard/src/controllers/card_controller.dart';
 import 'package:desafiocard/src/entitis/card.dart';
+import 'package:desafiocard/src/services/card_service.dart';
 import 'package:dio/dio.dart';
 
 void main(List<String> arguments) async {
-  var dio = Dio(
-    BaseOptions(baseUrl: 'https://api-cards-growdev.herokuapp.com'),
-  );
+  CardService cardService = CardService();
 
-  var cardController = CardController();
+  var cardController = CardController(cardService);
 
   var sair = false;
   int opcao;
@@ -32,45 +30,23 @@ void main(List<String> arguments) async {
     opcao = getOption(menu);
     switch (opcao) {
       case 1:
-        var lista = await cardController.buscarTodosCards(dio);
+        var lista = await cardController.buscarTodosCards();
         lista.forEach((element) => print(element));
         break;
       case 2:
-        var id = getId();
-        var card = await cardController.buscarCardsId(dio, id);
-        if (card.id == null) {
-          print('Card não existente');
-        } else {
-          print(card);
-        }
+        await trataErrorBuscaCard(cardController);
         break;
       case 3:
         var titleAndContent = getTitleAndContent();
         var card = await cardController.insereCards(
-            dio, Card(title: titleAndContent[0], content: titleAndContent[1]));
+            Card(title: titleAndContent[0], content: titleAndContent[1]));
         print(card);
         break;
       case 4:
-        var id = getId();
-        var titleAndContent = getTitleAndContent();
-        var card = await cardController.editarCards(
-            dio,
-            Card(
-              id: id,
-              title: titleAndContent[0],
-              content: titleAndContent[1],
-            ));
-        if (card.id == null) {
-          print('Card não existente');
-        } else {
-          print('Card atualizado com sucesso.');
-          print(card);
-        }
+        await trataErrorEditarCard(cardController);
         break;
       case 5:
-        var id = getId();
-        await cardController.deletarCards(dio, id);
-        print('Cartão deletado com sucesso!');
+        await trataErrorDeletarCard(cardController);
         break;
       case 6:
         sair = true;
@@ -81,6 +57,46 @@ void main(List<String> arguments) async {
         break;
     }
   } while (!sair);
+}
+
+void trataErrorBuscaCard(CardController cardController) async {
+  try {
+    var id = getId();
+    var card = await cardController.buscarCardsId(id);
+    print(card);
+  } catch (error) {
+    print('Card não encontrado');
+    print(error);
+  }
+}
+
+void trataErrorEditarCard(CardController cardController) async {
+  try {
+    var id = getId();
+    var titleAndContent = getTitleAndContent();
+    var card = await cardController.editarCards(Card(
+      id: id,
+      title: titleAndContent[0],
+      content: titleAndContent[1],
+    ));
+
+    print('Card atualizado com sucesso.');
+    print(card);
+  } catch (error) {
+    print('Card não encontrado');
+    print(error);
+  }
+}
+
+void trataErrorDeletarCard(CardController cardController) async {
+  try {
+    var id = getId();
+    await cardController.deletarCards(id);
+    print('Cartão deletado com sucesso!');
+  } catch (error) {
+    print('Card não encontrado');
+    print(error);
+  }
 }
 
 int getOption(String menu) {

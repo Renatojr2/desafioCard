@@ -1,32 +1,31 @@
+import 'package:desafiocard/src/contract/Iservice.dart';
 import 'package:desafiocard/src/services/card_service.dart';
 import 'package:dio/dio.dart';
 
 import '../entitis/card.dart';
 
 class CardController {
-  CardService cardService;
+  IService cardService;
 
-  CardController() {
-    cardService = CardService();
+  CardController(this.cardService);
+
+  Future<List> buscarTodosCards() async {
+    return cardService.buscarTodosCards();
   }
 
-  Future<List> buscarTodosCards(Dio dio) async {
-    return cardService.buscarTodosCards(dio);
+  Future<Card> buscarCardsId(int id) async {
+    return cardService.buscarCardsId(id);
   }
 
-  Future<Card> buscarCardsId(Dio dio, int id) async {
-    return cardService.buscarCardsId(dio, id);
+  Future<Card> insereCards(Card card) async {
+    return cardService.insereCards(card);
   }
 
-  Future<Card> insereCards(Dio dio, Card card) async {
-    return cardService.insereCards(dio, card);
+  Future<Card> editarCards(Card card) async {
+    return cardService.editarCards(card);
   }
 
-  Future<Card> editarCards(Dio dio, Card card) async {
-    return cardService.editarCards(dio, card);
-  }
-
-  Future<List> deletarCards(Dio dio, int id) async {
-    return cardService.deletarCards(dio, id);
+  Future<List> deletarCards(int id) async {
+    return cardService.deletarCards(id);
   }
 }
